@@ -3,6 +3,7 @@
 > Binaries, Docker images, and releases will continue to be published here.
 >
 > **Want access to the source?**
+>
 > - [Open a Discussion](https://github.com/NikkeTryHard/zerogravity/discussions) on this repo
 > - [Join our Telegram](https://t.me/ZeroGravityProxy) and DM me
 >
@@ -34,15 +35,15 @@
 
 ## Models
 
-| Name                | Label                      | Notes               |
-| ------------------- | -------------------------- | ------------------- |
+| Name                | Label                        | Notes               |
+| ------------------- | ---------------------------- | ------------------- |
 | `opus-4.6`          | Claude Opus 4.6 (Thinking)   | Default model       |
 | `sonnet-4.6`        | Claude Sonnet 4.6 (Thinking) | —                   |
-| `opus-4.5`          | Claude Opus 4.5 (Thinking) | —                   |
-| `gemini-3-pro`      | Gemini 3 Pro (High)        | Default Pro tier    |
-| `gemini-3-pro-high` | Gemini 3 Pro (High)        | Alias               |
-| `gemini-3-pro-low`  | Gemini 3 Pro (Low)         | —                   |
-| `gemini-3-flash`    | Gemini 3 Flash             | Recommended for dev |
+| `opus-4.5`          | Claude Opus 4.5 (Thinking)   | —                   |
+| `gemini-3-pro`      | Gemini 3 Pro (High)          | Default Pro tier    |
+| `gemini-3-pro-high` | Gemini 3 Pro (High)          | Alias               |
+| `gemini-3-pro-low`  | Gemini 3 Pro (Low)           | —                   |
+| `gemini-3-flash`    | Gemini 3 Flash               | Recommended for dev |
 
 ## Quick Start
 
@@ -60,7 +61,37 @@ The proxy needs an OAuth token:
 
 1. **Env var**: `ZEROGRAVITY_TOKEN=ya29.xxx`
 2. **Token file**: `~/.config/zerogravity/token`
-3. **Runtime**: `curl -X POST http://localhost:8741/v1/token -d '\''{ "token": "ya29.xxx" }'\''`
+3. **Runtime**: `curl -X POST http://localhost:8741/v1/token -d '{ "token": "ya29.xxx" }'`
+
+### API Key Protection (Optional)
+
+Protect the proxy from unauthorized access by setting an API key:
+
+```bash
+# Single key
+export ZEROGRAVITY_API_KEY="your-secret-key"
+
+# Multiple keys (comma-separated)
+export ZEROGRAVITY_API_KEY="key1,key2,key3"
+```
+
+Clients must then include the key in requests using either header format:
+
+```bash
+# OpenAI-style (Authorization: Bearer)
+curl http://localhost:8741/v1/chat/completions \
+  -H "Authorization: Bearer your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "gemini-3-flash", "messages": [{"role": "user", "content": "hi"}]}'
+
+# Anthropic-style (x-api-key)
+curl http://localhost:8741/v1/messages \
+  -H "x-api-key: your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "opus-4.6", "max_tokens": 1024, "messages": [{"role": "user", "content": "hi"}]}'
+```
+
+> **Note:** If `ZEROGRAVITY_API_KEY` is not set, no API key authentication is enforced (backward-compatible). The `/health` and `/` endpoints are always public.
 
 <details>
 <summary>How to get the token</summary>
@@ -73,6 +104,61 @@ The proxy needs an OAuth token:
 6. Copy the token (starts with `ya29.`)
 
 > **Note:** OAuth tokens expire after ~1 hour. If Antigravity is installed on the same machine, auto-refresh works automatically.
+
+</details>
+
+<details>
+<summary>Auto-refresh with state.vscdb (recommended for Docker / remote servers)</summary>
+
+If you don't have Antigravity installed on the machine running ZeroGravity (e.g. a remote server or Docker container), you can copy the `state.vscdb` file from any computer where Antigravity is logged in. This database contains a long-lived **refresh token** that lets the proxy auto-refresh access tokens indefinitely — no manual token rotation needed.
+
+#### 1. Find `state.vscdb` on the machine with Antigravity
+
+| OS          | Path                                                                       |
+| ----------- | -------------------------------------------------------------------------- |
+| **Linux**   | `~/.config/Antigravity/User/globalStorage/state.vscdb`                     |
+| **macOS**   | `~/Library/Application Support/Antigravity/User/globalStorage/state.vscdb` |
+| **Windows** | `%APPDATA%\Antigravity\User\globalStorage\state.vscdb`                     |
+
+#### 2. Copy it to your server / Docker host
+
+Just the single `state.vscdb` file — no other files needed.
+
+#### 3. Mount and configure
+
+**Docker run:**
+
+```bash
+docker run -d --name zerogravity \
+  -p 8741:8741 -p 8742:8742 \
+  -v /path/to/state.vscdb:/authfile/state.vscdb:ro \
+  -e ZEROGRAVITY_STATE_DB=/authfile/state.vscdb \
+  ghcr.io/nikketryhard/zerogravity:latest
+```
+
+**Docker Compose** (place `state.vscdb` in an `./authfile/` directory next to `docker-compose.yml`):
+
+```yaml
+services:
+  zerogravity:
+    image: ghcr.io/nikketryhard/zerogravity:latest
+    ports:
+      - "8741:8741"
+      - "8742:8742"
+    volumes:
+      - ./authfile:/authfile:ro
+    environment:
+      - ZEROGRAVITY_STATE_DB=/authfile/state.vscdb
+      - RUST_LOG=info
+```
+
+**Native (no Docker):**
+
+```bash
+ZEROGRAVITY_STATE_DB=/path/to/state.vscdb ./zerogravity --headless
+```
+
+> **Note:** This is a one-time copy. The refresh token inside `state.vscdb` is long-lived — the proxy automatically uses it to obtain fresh access tokens. You only need to re-copy if you log out of Antigravity on the source machine or if Google revokes the refresh token.
 
 </details>
 
@@ -118,31 +204,36 @@ powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
 docker run -d --name zerogravity \
   -p 8741:8741 -p 8742:8742 \
   -e ZEROGRAVITY_TOKEN=ya29.xxx \
+  -e ZEROGRAVITY_API_KEY=your-secret-key \
   ghcr.io/nikketryhard/zerogravity:latest
 ```
 
 Or with docker-compose:
 
 ```bash
+# Set token and optional API key in .env file
 echo "ZEROGRAVITY_TOKEN=ya29.xxx" > .env
+echo "ZEROGRAVITY_API_KEY=your-secret-key" >> .env
 docker compose up -d
 ```
 
-> **Note:** The Docker image bundles the LS binary so no Antigravity installation is needed.
+> **Note:** The Docker image bundles the LS binary so no Antigravity installation is needed. If Antigravity is installed on the host, mount its config dir for auto token refresh: `-v $HOME/.config/Antigravity:/root/.config/Antigravity:ro`
 
 ## Endpoints
 
-| Method     | Path                              | Description                           |
-| ---------- | --------------------------------- | ------------------------------------- |
-| `POST`     | `/v1/responses`                   | Responses API (sync + streaming)      |
-| `POST`     | `/v1/chat/completions`            | Chat Completions API (OpenAI compat)  |
-| `POST`     | `/v1/messages`                    | Messages API (Anthropic compat)       |
-| `POST`     | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes         |
-| `GET`      | `/v1/models`                      | List available models                 |
-| `POST`     | `/v1/token`                       | Set OAuth token at runtime            |
-| `GET`      | `/v1/usage`                       | Token usage stats                     |
-| `GET`      | `/v1/quota`                       | Quota and rate limits                 |
-| `GET`      | `/health`                         | Health check                          |
+| Method   | Path                              | Description                          |
+| -------- | --------------------------------- | ------------------------------------ |
+| `POST`   | `/v1/responses`                   | Responses API (sync + streaming)     |
+| `POST`   | `/v1/chat/completions`            | Chat Completions API (OpenAI compat) |
+| `POST`   | `/v1/messages`                    | Messages API (Anthropic compat)      |
+| `POST`   | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes        |
+| `GET`    | `/v1/models`                      | List available models                |
+| `GET`    | `/v1/sessions`                    | List active sessions                 |
+| `DELETE` | `/v1/sessions/{id}`               | Delete a session                     |
+| `POST`   | `/v1/token`                       | Set OAuth token at runtime           |
+| `GET`    | `/v1/usage`                       | Token usage stats                    |
+| `GET`    | `/v1/quota`                       | Quota and rate limits                |
+| `GET`    | `/health`                         | Health check                         |
 
 ## `zg` Commands
 
@@ -154,6 +245,8 @@ docker compose up -d
 | `zg update`          | Download latest binary from GitHub Releases |
 | `zg status`          | Service status + quota + usage              |
 | `zg logs [N]`        | Show last N lines (default 30)              |
+| `zg logs-follow [N]` | Tail last N lines + follow                  |
+| `zg logs-all`        | Full log dump                               |
 | `zg test [msg]`      | Quick test request (gemini-3-flash)         |
 | `zg health`          | Health check                                |
 

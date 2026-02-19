@@ -11,5 +11,6 @@ services:
       - ${HOME}/.config/Antigravity:/root/.config/Antigravity:ro
     environment:
       - ZEROGRAVITY_TOKEN=${ZEROGRAVITY_TOKEN:-}
+      - ZEROGRAVITY_API_KEY=${ZEROGRAVITY_API_KEY:-}
       - ZEROGRAVITY_UPSTREAM_PROXY=${ZEROGRAVITY_UPSTREAM_PROXY:-}
       - RUST_LOG=info
