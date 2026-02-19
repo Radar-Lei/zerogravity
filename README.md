@@ -112,7 +112,9 @@ curl http://localhost:8741/v1/messages \
 <details>
 <summary>Auto-refresh with state.vscdb (recommended for Docker / remote servers)</summary>
 
-If you don't have Antigravity installed on the machine running ZeroGravity (e.g. a remote server or Docker container), you can copy the `state.vscdb` file from any computer where Antigravity is logged in. This database contains a long-lived **refresh token** that lets the proxy auto-refresh access tokens indefinitely — no manual token rotation needed.
+If Antigravity is installed on the same machine, token refresh works automatically — no config needed.
+
+For remote servers or Docker containers, copy the `state.vscdb` file from any machine where Antigravity is logged in. This database contains a long-lived **refresh token** that lets the proxy auto-refresh access tokens indefinitely.
 
 #### 1. Find `state.vscdb` on the machine with Antigravity
 
@@ -122,13 +124,24 @@ If you don't have Antigravity installed on the machine running ZeroGravity (e.g.
 | **macOS**   | `~/Library/Application Support/Antigravity/User/globalStorage/state.vscdb` |
 | **Windows** | `%APPDATA%\Antigravity\User\globalStorage\state.vscdb`                     |
 
-#### 2. Copy it to your server / Docker host
+#### 2. Copy to your server / Docker host
 
 Just the single `state.vscdb` file — no other files needed.
 
 #### 3. Mount and configure
 
-**Docker run:**
+**Docker (recommended — mount entire Antigravity config dir):**
+
+If you copy the entire Antigravity config dir structure, the proxy auto-detects `state.vscdb` at the default path — no env vars needed:
+
+```bash
+docker run -d --name zerogravity \
+  -p 8741:8741 -p 8742:8742 \
+  -v /path/to/Antigravity:/root/.config/Antigravity:ro \
+  ghcr.io/nikketryhard/zerogravity:latest
+```
+
+**Docker (manual path — single file mount):**
 
 ```bash
 docker run -d --name zerogravity \
@@ -138,29 +151,15 @@ docker run -d --name zerogravity \
   ghcr.io/nikketryhard/zerogravity:latest
 ```
 
-**Docker Compose** (place `state.vscdb` in an `./authfile/` directory next to `docker-compose.yml`):
-
-```yaml
-services:
-  zerogravity:
-    image: ghcr.io/nikketryhard/zerogravity:latest
-    ports:
-      - "8741:8741"
-      - "8742:8742"
-    volumes:
-      - ./authfile:/authfile:ro
-    environment:
-      - ZEROGRAVITY_STATE_DB=/authfile/state.vscdb
-      - RUST_LOG=info
-```
-
 **Native (no Docker):**
+
+If Antigravity is installed on the same machine, it works automatically. Otherwise:
 
 ```bash
 ZEROGRAVITY_STATE_DB=/path/to/state.vscdb ./zerogravity --headless
 ```
 
-> **Note:** This is a one-time copy. The refresh token inside `state.vscdb` is long-lived — the proxy automatically uses it to obtain fresh access tokens. You only need to re-copy if you log out of Antigravity on the source machine or if Google revokes the refresh token.
+> **Note:** This is a one-time copy. The refresh token inside `state.vscdb` is long-lived — the proxy automatically uses it to obtain fresh access tokens. You only need to re-copy if you log out of Antigravity on the source machine.
 
 </details>
 
@@ -202,6 +201,19 @@ powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
 
 ### Docker
 
+**Recommended (auto-refresh via Antigravity config mount):**
+
+If Antigravity is installed on the host, mount its config dir and the proxy auto-detects `state.vscdb` for token refresh — no env vars needed:
+
+```bash
+docker run -d --name zerogravity \
+  -p 8741:8741 -p 8742:8742 \
+  -v $HOME/.config/Antigravity:/root/.config/Antigravity:ro \
+  ghcr.io/nikketryhard/zerogravity:latest
+```
+
+**With manual token:**
+
 ```bash
 docker run -d --name zerogravity \
   -p 8741:8741 -p 8742:8742 \
@@ -210,16 +222,13 @@ docker run -d --name zerogravity \
   ghcr.io/nikketryhard/zerogravity:latest
 ```
 
-Or with docker-compose:
+**Docker Compose:**
 
 ```bash
-# Set token and optional API key in .env file
-echo "ZEROGRAVITY_TOKEN=ya29.xxx" > .env
-echo "ZEROGRAVITY_API_KEY=your-secret-key" >> .env
 docker compose up -d
 ```
 
-> **Note:** The Docker image bundles the LS binary so no Antigravity installation is needed. If Antigravity is installed on the host, mount its config dir for auto token refresh: `-v $HOME/.config/Antigravity:/root/.config/Antigravity:ro`
+> **Note:** The Docker image bundles the LS binary — no Antigravity installation needed on the host. If Antigravity IS installed, mounting the config dir gives you automatic token refresh with no manual token management.
 
 ## Endpoints
 

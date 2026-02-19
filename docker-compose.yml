@@ -1,6 +1,6 @@
 services:
   zerogravity:
-    build: .
+    image: ghcr.io/nikketryhard/zerogravity:latest
     restart: unless-stopped
     ports:
       - "8741:8741"
