@@ -7,12 +7,55 @@ body:
       value: |
         Thanks for reporting! Please fill out the info below so we can debug faster.
 
+  - type: dropdown
+    id: version
+    attributes:
+      label: ZeroGravity Version
+      description: "Run `zg status` or check your download — pick the closest match"
+      options:
+        - v1.1.6-beta.1
+        - v1.1.5
+        - v1.1.4
+        - Docker (latest)
+        - Built from source
+        - Other (specify below)
+    validations:
+      required: true
+
+  - type: input
+    id: version_detail
+    attributes:
+      label: Version Detail (if "Other" or built from source)
+      description: "Paste the output of `zg status` or `git rev-parse --short HEAD`"
+      placeholder: "e.g. abc1234 or zg status output"
+
+  - type: dropdown
+    id: install_method
+    attributes:
+      label: Installation Method
+      options:
+        - Binary download (GitHub release)
+        - Docker
+        - Built from source
+    validations:
+      required: true
+
   - type: input
     id: os
     attributes:
       label: Operating System
       description: e.g. Ubuntu 24.04, macOS 15.2, Windows 11
       placeholder: Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: dropdown
+    id: arch
+    attributes:
+      label: Architecture
+      options:
+        - x86_64 / amd64
+        - aarch64 / arm64
     validations:
       required: true
 
@@ -25,15 +68,6 @@ body:
         - Headless (default, --headless)
         - Classic (--classic, attached to running Antigravity)
         - No MITM (--no-mitm)
-    validations:
-      required: true
-
-  - type: input
-    id: version
-    attributes:
-      label: ZeroGravity Version / Commit
-      description: "Output of `git rev-parse --short HEAD` or the version you downloaded"
-      placeholder: 4966d8f
     validations:
       required: true
 
@@ -53,47 +87,41 @@ body:
       required: true
 
   - type: textarea
+    id: repro
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this? Include the curl command or client config if applicable.
+
+  - type: textarea
     id: logs
     attributes:
       label: Logs
       description: |
-        Paste relevant log output. You can get logs with:
-        - `zg logs-all` (full logs)
-        - `journalctl --user -u zerogravity --no-pager -n 200` (systemd)
-        - Or check `~/.config/zerogravity/` for log files
+        ```
+        zg logs 50
+        ```
       render: text
-
-  - type: textarea
-    id: trace
-    attributes:
-      label: Call Trace
-      description: |
-        If available, paste the trace summary for the failing request.
-        Traces are saved to `~/.config/zerogravity/traces/YYYY-MM-DD/`.
-        You can get the latest one with:
-        ```
-        TRACE_DIR=~/.config/zerogravity/traces/$(date +%Y-%m-%d)
-        cat "$TRACE_DIR/$(ls -t "$TRACE_DIR" | head -1)/summary.md"
-        ```
-      render: markdown
 
   - type: textarea
     id: health
     attributes:
-      label: Health Check Output
+      label: Health / Status Output
       description: |
-        Paste the output of:
         ```
-        curl -s http://localhost:8741/health | jq .
+        zg health
         zg status
         ```
       render: json
 
   - type: textarea
-    id: repro
+    id: trace
     attributes:
-      label: Steps to Reproduce
-      description: How can we reproduce this? Include the curl command or client config if applicable.
+      label: Call Trace (if applicable)
+      description: |
+        ```
+        zg trace
+        ```
+      render: markdown
 
   - type: textarea
     id: extra
