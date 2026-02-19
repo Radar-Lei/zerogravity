@@ -40,12 +40,27 @@ body:
     validations:
       required: true
 
-  - type: input
+  - type: dropdown
     id: os
     attributes:
       label: Operating System
-      description: e.g. Ubuntu 24.04, macOS 15.2, Windows 11
-      placeholder: Ubuntu 24.04
+      options:
+        - Ubuntu 24.04
+        - Ubuntu 22.04
+        - Ubuntu 20.04
+        - Debian 12 (Bookworm)
+        - Debian 11 (Bullseye)
+        - Fedora 41
+        - Fedora 40
+        - Arch Linux
+        - CentOS / RHEL 9
+        - CentOS / RHEL 8
+        - macOS 15 (Sequoia)
+        - macOS 14 (Sonoma)
+        - WSL2 (Ubuntu)
+        - WSL2 (Other)
+        - Docker
+        - Other (specify in Additional Context)
     validations:
       required: true
 
