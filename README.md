@@ -63,6 +63,8 @@ The proxy needs an OAuth token:
 2. **Token file**: `~/.config/zerogravity/token`
 3. **Runtime**: `curl -X POST http://localhost:8741/v1/token -d '{ "token": "ya29.xxx" }'`
 
+> **Docker users:** When you set a token via `/v1/token`, it's automatically pushed to the LS within 5 seconds — no container restart needed.
+
 ### API Key Protection (Optional)
 
 Protect the proxy from unauthorized access by setting an API key:
@@ -221,19 +223,18 @@ docker compose up -d
 
 ## Endpoints
 
-| Method   | Path                              | Description                          |
-| -------- | --------------------------------- | ------------------------------------ |
-| `POST`   | `/v1/responses`                   | Responses API (sync + streaming)     |
-| `POST`   | `/v1/chat/completions`            | Chat Completions API (OpenAI compat) |
-| `POST`   | `/v1/messages`                    | Messages API (Anthropic compat)      |
-| `POST`   | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes        |
-| `GET`    | `/v1/models`                      | List available models                |
-| `GET`    | `/v1/sessions`                    | List active sessions                 |
-| `DELETE` | `/v1/sessions/{id}`               | Delete a session                     |
-| `POST`   | `/v1/token`                       | Set OAuth token at runtime           |
-| `GET`    | `/v1/usage`                       | Token usage stats                    |
-| `GET`    | `/v1/quota`                       | Quota and rate limits                |
-| `GET`    | `/health`                         | Health check                         |
+| Method     | Path                              | Description                           |
+| ---------- | --------------------------------- | ------------------------------------- |
+| `POST`     | `/v1/responses`                   | Responses API (sync + streaming)      |
+| `POST`     | `/v1/chat/completions`            | Chat Completions API (OpenAI compat)  |
+| `POST`     | `/v1/messages`                    | Messages API (Anthropic compat)       |
+| `POST`     | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes         |
+| `GET/POST` | `/v1/search`                      | Web Search via Google grounding (WIP) |
+| `GET`      | `/v1/models`                      | List available models                 |
+| `POST`     | `/v1/token`                       | Set OAuth token at runtime            |
+| `GET`      | `/v1/usage`                       | MITM-intercepted token usage          |
+| `GET`      | `/v1/quota`                       | LS quota and rate limits              |
+| `GET`      | `/health`                         | Health check                          |
 
 ## `zg` Commands
 
@@ -241,7 +242,7 @@ docker compose up -d
 | -------------------- | ------------------------------------------- |
 | `zg start`           | Start the proxy daemon                      |
 | `zg stop`            | Stop the proxy daemon                       |
-| `zg restart`         | Stop + start                                |
+| `zg restart`         | Stop + start (no build/download)            |
 | `zg update`          | Download latest binary from GitHub Releases |
 | `zg status`          | Service status + quota + usage              |
 | `zg logs [N]`        | Show last N lines (default 30)              |
@@ -249,6 +250,10 @@ docker compose up -d
 | `zg logs-all`        | Full log dump                               |
 | `zg test [msg]`      | Quick test request (gemini-3-flash)         |
 | `zg health`          | Health check                                |
+| `zg trace`           | Show latest trace summary                   |
+| `zg trace ls`        | List last 10 traces                         |
+| `zg trace dir`       | Print trace base directory                  |
+| `zg trace errors`    | Show today's error traces                   |
 
 ## License
 
