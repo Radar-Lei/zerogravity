@@ -81,13 +81,14 @@ COPY --from=ls-extractor /ls_binary /usr/local/bin/language_server_linux_x64
 
 # Setup directories
 RUN mkdir -p /root/.config/zerogravity \
-    && mkdir -p /tmp/zerogravity-standalone \
-    && chmod 1777 /tmp/zerogravity-standalone
+    && mkdir -p /tmp/.agcache \
+    && chmod 1777 /tmp/.agcache
 
 EXPOSE 8741 8742
 
 ENV RUST_LOG=info
 ENV ZEROGRAVITY_TOKEN=""
+ENV ZEROGRAVITY_API_KEY=""
 ENV ZEROGRAVITY_UPSTREAM_PROXY=""
 ENV ZEROGRAVITY_LS_PATH="/usr/local/bin/language_server_linux_x64"
 
