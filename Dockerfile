@@ -1,5 +1,5 @@
 # ── Stage 1: Extract LS binary from Antigravity .deb (amd64 only) ──
-FROM debian:bookworm-slim AS ls-extractor
+FROM debian:trixie-slim AS ls-extractor
 
 ARG TARGETARCH
 
@@ -30,7 +30,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     fi
 
 # ── Stage 2: Download prebuilt proxy binary (arch-aware) ──
-FROM debian:bookworm-slim AS downloader
+FROM debian:trixie-slim AS downloader
 
 ARG TARGETARCH
 
@@ -52,7 +52,7 @@ RUN ARCH_SUFFIX=$(case "$TARGETARCH" in \
     && chmod +x /zerogravity /zg
 
 # ── Stage 3: Runtime ──
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 ARG TARGETARCH
 
