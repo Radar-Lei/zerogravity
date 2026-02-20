@@ -36,6 +36,8 @@ body:
         Run `zg report` and paste the output here, or attach the file
         (`~/.config/zerogravity/diagnostic.toon`).
       render: text
+    validations:
+      required: true
 
   - type: textarea
     id: extra
