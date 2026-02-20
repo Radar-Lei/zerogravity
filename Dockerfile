@@ -62,6 +62,7 @@ ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
+    curl \
     gcc \
     libc6-dev \
     sudo \
