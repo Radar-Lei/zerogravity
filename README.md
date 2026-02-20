@@ -200,10 +200,12 @@ curl http://localhost:8741/v1/messages \
 
 1. Open Antigravity → **Help** > **Toggle Developer Tools**
 2. Go to the **Network** tab
-3. Send any prompt
-4. Find a request to `generativelanguage.googleapis.com`
-5. Look for the `Authorization: Bearer ya29.xxx` header
-6. Copy the token (starts with `ya29.`)
+3. Send any prompt in the chat
+4. Find a request to `127.0.0.1` (look for `SendUserCascadeMessage` or `GetCommandModelConfigs`)
+5. Right-click → **Copy as cURL**
+6. Paste the cURL into any LLM and ask it to extract the `ya29.` token
+
+> The token is in the JSON body under `metadata.apiKey`, not in an HTTP header.
 
 > **Note:** OAuth tokens expire after ~1 hour. If Antigravity is installed on the same machine, auto-refresh works automatically.
 
