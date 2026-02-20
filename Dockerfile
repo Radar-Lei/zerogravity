@@ -86,7 +86,7 @@ RUN mkdir -p /root/.config/zerogravity \
     && mkdir -p /tmp/.agcache \
     && chmod 1777 /tmp/.agcache
 
-EXPOSE 8741 8742
+EXPOSE 8741 443
 
 # Auth: mount accounts.json for multi-account rotation, or set ZEROGRAVITY_ACCOUNTS env var
 VOLUME ["/root/.config/zerogravity"]
@@ -98,4 +98,4 @@ ENV ZEROGRAVITY_API_KEY=""
 ENV ZEROGRAVITY_LS_PATH="/usr/local/bin/language_server_linux_x64"
 
 ENTRYPOINT ["zerogravity"]
-CMD ["--headless", "--host", "0.0.0.0"]
+CMD ["--headless", "--host", "0.0.0.0", "--mitm-port", "443"]
