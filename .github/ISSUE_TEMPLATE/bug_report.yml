@@ -5,8 +5,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Before reporting, please run `zg report` and attach the generated file.
-        It collects all the system info, version, logs, and traces we need to debug.
+        Before reporting, please run `zg report` and attach the output.
+
+        **If you have a specific failing request**, also run `zg report <trace-id>` to bundle
+        the exact trace (use `zg trace ls` to find the ID). This creates a `.tar.gz` with
+        the full request/response data we need to reproduce and debug.
 
   - type: textarea
     id: description
@@ -35,6 +38,9 @@ body:
       description: |
         Run `zg report` and paste the output here, or attach the file
         (`~/.config/zerogravity/diagnostic.toon`).
+
+        If a specific request failed, also attach the trace bundle from
+        `zg report <trace-id>` (a `.tar.gz` file).
       render: text
     validations:
       required: true

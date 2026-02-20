@@ -302,14 +302,21 @@ ZEROGRAVITY_STATE_DB=/path/to/state.vscdb ./zerogravity --headless
 | `zg health`          | Health check                                              |
 | `zg token`           | Extract OAuth token from local Antigravity state.vscdb    |
 | `zg docker-init`     | Generate docker-compose.yml + .env in current dir         |
-| `zg report`          | Generate diagnostic report for bug reports                |
 | `zg logs [N]`        | Show last N lines (default 30)                            |
 | `zg logs-follow [N]` | Tail last N lines + follow                                |
 | `zg logs-all`        | Full log dump                                             |
-| `zg trace`           | Show latest trace summary                                 |
-| `zg trace ls`        | List last 10 traces                                       |
-| `zg trace dir`       | Print trace base directory                                |
-| `zg trace errors`    | Show today's error traces                                 |
+
+### Diagnostics
+
+| Command            | Description                                        |
+| ------------------ | -------------------------------------------------- |
+| `zg report`        | Generate full diagnostic report for bug reports    |
+| `zg report <id>`   | Bundle a specific trace into a shareable `.tar.gz` |
+| `zg replay <file>` | Re-send a bundled trace to the local proxy         |
+| `zg trace`         | Show latest trace summary                          |
+| `zg trace ls`      | List last 10 traces                                |
+| `zg trace dir`     | Print trace base directory                         |
+| `zg trace errors`  | Show today's error traces                          |
 
 ## License
 
