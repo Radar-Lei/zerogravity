@@ -57,12 +57,103 @@ zg init
 # Start the proxy daemon
 zg start
 
-# Update both zerogravity and zg to the latest release
-zg update
+# Quick test
+zg test "say hi"
 
 # Check status (version, endpoints, quota, usage)
 zg status
+
+# Generate docker-compose.yml + .env (for Docker users)
+zg docker-init
+docker compose up -d
+
+# Update to the latest release
+zg update
 ```
+
+## Endpoints
+
+| Method | Path                              | Description                          |
+| ------ | --------------------------------- | ------------------------------------ |
+| `POST` | `/v1/chat/completions`            | Chat Completions API (OpenAI compat) |
+| `POST` | `/v1/responses`                   | Responses API (sync + streaming)     |
+| `POST` | `/v1/messages`                    | Messages API (Anthropic compat)      |
+| `POST` | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes        |
+| `GET`  | `/v1/models`                      | List available models                |
+| `POST` | `/v1/token`                       | Set OAuth token at runtime           |
+| `GET`  | `/v1/usage`                       | Proxy token usage                    |
+| `GET`  | `/v1/quota`                       | Quota and rate limits                |
+| `GET`  | `/health`                         | Health check                         |
+
+## Setup
+
+### Download Binary
+
+```bash
+# x86_64
+curl -fsSL https://github.com/NikkeTryHard/zerogravity/releases/latest/download/zerogravity-linux-x86_64 -o zerogravity
+curl -fsSL https://github.com/NikkeTryHard/zerogravity/releases/latest/download/zg-linux-x86_64 -o zg
+chmod +x zerogravity zg
+
+# ARM64
+curl -fsSL https://github.com/NikkeTryHard/zerogravity/releases/latest/download/zerogravity-linux-arm64 -o zerogravity
+curl -fsSL https://github.com/NikkeTryHard/zerogravity/releases/latest/download/zg-linux-arm64 -o zg
+chmod +x zerogravity zg
+```
+
+### Linux
+
+```bash
+./scripts/setup-linux.sh
+zg start
+```
+
+### macOS
+
+```bash
+./scripts/setup-macos.sh
+zg start
+```
+
+### Windows
+
+```powershell
+# Run as Administrator
+powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
+.\zerogravity.exe
+```
+
+### Docker
+
+**Recommended (auto-refresh via Antigravity config mount):**
+
+If Antigravity is installed on the host, mount its config dir and the proxy auto-detects `state.vscdb` for token refresh — no env vars needed:
+
+```bash
+docker run -d --name zerogravity \
+  -p 8741:8741 -p 8742:8742 \
+  -v $HOME/.config/Antigravity:/root/.config/Antigravity:ro \
+  ghcr.io/nikketryhard/zerogravity:latest
+```
+
+**With manual token:**
+
+```bash
+docker run -d --name zerogravity \
+  -p 8741:8741 -p 8742:8742 \
+  -e ZEROGRAVITY_TOKEN=ya29.xxx \
+  -e ZEROGRAVITY_API_KEY=your-secret-key \
+  ghcr.io/nikketryhard/zerogravity:latest
+```
+
+**Docker Compose (auto-generated):**
+
+```bash
+zg docker-init
+docker compose up -d
+```
+
+> **Note:** The Docker image bundles all required backend components — no Antigravity installation needed on the host. If Antigravity IS installed, mounting the config dir gives you automatic token refresh with no manual token management.
 
 ## Authentication
 
@@ -172,120 +263,24 @@ ZEROGRAVITY_STATE_DB=/path/to/state.vscdb ./zerogravity --headless
 
 </details>
 
-## Setup
-
-### Download Binary
-
-```bash
-# x86_64
-curl -fsSL https://github.com/NikkeTryHard/zerogravity/releases/latest/download/zerogravity-linux-x86_64 -o zerogravity
-chmod +x zerogravity
-
-# ARM64
-curl -fsSL https://github.com/NikkeTryHard/zerogravity/releases/latest/download/zerogravity-linux-arm64 -o zerogravity
-chmod +x zerogravity
-```
-
-### Linux
-
-```bash
-./scripts/setup-linux.sh
-zg start
-```
-
-### macOS
-
-```bash
-./scripts/setup-macos.sh
-zg start
-```
-
-### Windows
-
-```powershell
-# Run as Administrator
-powershell -ExecutionPolicy Bypass -File scripts\setup-windows.ps1
-.\zerogravity.exe
-```
-
-### Docker
-
-**Recommended (auto-refresh via Antigravity config mount):**
-
-If Antigravity is installed on the host, mount its config dir and the proxy auto-detects `state.vscdb` for token refresh — no env vars needed:
-
-```bash
-docker run -d --name zerogravity \
-  -p 8741:8741 -p 8742:8742 \
-  -v $HOME/.config/Antigravity:/root/.config/Antigravity:ro \
-  ghcr.io/nikketryhard/zerogravity:latest
-```
-
-**With manual token:**
-
-```bash
-docker run -d --name zerogravity \
-  -p 8741:8741 -p 8742:8742 \
-  -e ZEROGRAVITY_TOKEN=ya29.xxx \
-  -e ZEROGRAVITY_API_KEY=your-secret-key \
-  ghcr.io/nikketryhard/zerogravity:latest
-```
-
-**Docker Compose (auto-generated):**
-
-```bash
-# Generate docker-compose.yml + .env with auto-detected token
-zg docker-init
-docker compose up -d
-```
-
-**Docker Compose (manual):**
-
-```bash
-docker compose up -d
-```
-
-> **Note:** The Docker image bundles all required backend components — no Antigravity installation needed on the host. If Antigravity IS installed, mounting the config dir gives you automatic token refresh with no manual token management.
-
-## Endpoints
-
-| Method     | Path                              | Description                           |
-| ---------- | --------------------------------- | ------------------------------------- |
-| `POST`     | `/v1/responses`                   | Responses API (sync + streaming)      |
-| `POST`     | `/v1/chat/completions`            | Chat Completions API (OpenAI compat)  |
-| `POST`     | `/v1/messages`                    | Messages API (Anthropic compat)       |
-| `POST`     | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes         |
-| `GET/POST` | `/v1/search`                      | Web Search via Google grounding (WIP) |
-| `GET`      | `/v1/models`                      | List available models                 |
-| `POST`     | `/v1/token`                       | Set OAuth token at runtime            |
-| `GET`      | `/v1/usage`                       | Proxy token usage                     |
-| `GET`      | `/v1/quota`                       | Quota and rate limits                 |
-| `GET`      | `/health`                         | Health check                          |
-
 ## `zg` Commands
-
-### Setup
-
-| Command          | Description                                            |
-| ---------------- | ------------------------------------------------------ |
-| `zg init`        | First-run setup wizard (token, PATH, client hints)     |
-| `zg token`       | Extract OAuth token from local Antigravity state.vscdb |
-| `zg docker-init` | Generate docker-compose.yml + .env in current dir      |
-
-### Service
 
 | Command              | Description                                               |
 | -------------------- | --------------------------------------------------------- |
+| `zg init`            | First-run setup wizard (token, PATH, client hints)        |
 | `zg start`           | Start the proxy daemon                                    |
 | `zg stop`            | Stop the proxy daemon                                     |
 | `zg restart`         | Stop + start (no build/download)                          |
 | `zg update`          | Download latest release from GitHub (updates zg + binary) |
 | `zg status`          | Version, endpoints, quota, usage, and update check        |
+| `zg test [msg]`      | Quick test request (gemini-3-flash)                       |
+| `zg health`          | Health check                                              |
+| `zg token`           | Extract OAuth token from local Antigravity state.vscdb    |
+| `zg docker-init`     | Generate docker-compose.yml + .env in current dir         |
+| `zg report`          | Generate diagnostic report for bug reports                |
 | `zg logs [N]`        | Show last N lines (default 30)                            |
 | `zg logs-follow [N]` | Tail last N lines + follow                                |
 | `zg logs-all`        | Full log dump                                             |
-| `zg test [msg]`      | Quick test request (gemini-3-flash)                       |
-| `zg health`          | Health check                                              |
 | `zg trace`           | Show latest trace summary                                 |
 | `zg trace ls`        | List last 10 traces                                       |
 | `zg trace dir`       | Print trace base directory                                |

@@ -5,135 +5,40 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for reporting! Please fill out the info below so we can debug faster.
-
-  - type: dropdown
-    id: version
-    attributes:
-      label: ZeroGravity Version
-      description: "Run `zg status` or check your download — pick the closest match"
-      options:
-        - v1.1.6-beta.1
-        - v1.1.5
-        - v1.1.4
-        - Docker (latest)
-        - Built from source
-        - Other (specify below)
-    validations:
-      required: true
-
-  - type: input
-    id: version_detail
-    attributes:
-      label: Version Detail (if "Other" or built from source)
-      description: "Paste the output of `zg status` or `git rev-parse --short HEAD`"
-      placeholder: "e.g. abc1234 or zg status output"
-
-  - type: dropdown
-    id: install_method
-    attributes:
-      label: Installation Method
-      options:
-        - Binary download (GitHub release)
-        - Docker
-        - Built from source
-    validations:
-      required: true
-
-  - type: dropdown
-    id: os
-    attributes:
-      label: Operating System
-      options:
-        - Ubuntu / Debian
-        - Fedora / RHEL
-        - Arch Linux
-        - Other Linux
-        - macOS
-        - Windows 11
-        - Windows 10
-        - WSL2
-        - Docker
-        - Other
-    validations:
-      required: true
-
-  - type: dropdown
-    id: arch
-    attributes:
-      label: Architecture
-      options:
-        - x86_64 / amd64
-        - aarch64 / arm64
-    validations:
-      required: true
-
-  - type: dropdown
-    id: mode
-    attributes:
-      label: Running Mode
-      description: How are you running ZeroGravity?
-      options:
-        - Headless (default, --headless)
-        - Classic (--classic, attached to running Antigravity)
-        - No MITM (--no-mitm)
-    validations:
-      required: true
-
-  - type: input
-    id: model
-    attributes:
-      label: Model Used
-      description: Which model were you using when the issue occurred?
-      placeholder: gemini-3-flash
+        Before reporting, please run `zg report` and attach the generated file.
+        It collects all the system info, version, logs, and traces we need to debug.
 
   - type: textarea
     id: description
     attributes:
       label: What happened?
-      description: Describe the issue clearly. What did you expect vs what actually happened?
+      description: Describe what went wrong and what you expected.
     validations:
       required: true
 
   - type: textarea
     id: repro
     attributes:
-      label: Steps to Reproduce
-      description: How can we reproduce this? Include the curl command or client config if applicable.
+      label: How to reproduce
+      description: |
+        What command or request caused the issue?
+        Include the curl command, client config, or steps to trigger it.
+      placeholder: |
+        curl -s http://localhost:8741/v1/chat/completions \
+          -H "Content-Type: application/json" \
+          -d '{"model":"gemini-3-flash","messages":[{"role":"user","content":"..."}]}'
 
   - type: textarea
-    id: logs
+    id: report
     attributes:
-      label: Logs
+      label: Diagnostic Report
       description: |
-        ```
-        zg logs 50
-        ```
+        Run `zg report` and paste the output here, or attach the file
+        (`~/.config/zerogravity/diagnostic.toon`).
       render: text
-
-  - type: textarea
-    id: health
-    attributes:
-      label: Health / Status Output
-      description: |
-        ```
-        zg health
-        zg status
-        ```
-      render: json
-
-  - type: textarea
-    id: trace
-    attributes:
-      label: Call Trace (if applicable)
-      description: |
-        ```
-        zg trace
-        ```
-      render: markdown
 
   - type: textarea
     id: extra
     attributes:
       label: Additional Context
-      description: Anything else — screenshots, network setup (VPN/proxy), Antigravity version, etc.
+      description: Anything else -- screenshots, network setup (VPN/proxy), error messages from your client, etc.

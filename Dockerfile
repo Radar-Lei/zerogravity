@@ -1,35 +1,34 @@
-# ── Stage 1: Extract LS binary from Antigravity (arch-aware) ──
+# ── Stage 1: Extract backend binary from Antigravity (arch-aware) ──
 FROM debian:trixie-slim AS ls-extractor
 
 ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl gnupg \
+    ca-certificates curl \
     && rm -rf /var/lib/apt/lists/*
 
-# amd64: extract from Google's .deb repo (pinned version)
-# arm64: extract from Google's tar.gz direct download
+# Both arches use the same version from Google's direct download
 WORKDIR /extract
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
-    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-    | gpg --dearmor -o /etc/apt/keyrings/antigravity-repo-key.gpg \
-    && echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" \
-    > /etc/apt/sources.list.d/antigravity.list \
-    && apt-get update \
-    && apt-get download antigravity=1.16.5-1770081357 \
-    && dpkg-deb -x antigravity_*.deb extracted/ \
-    && cp extracted/usr/share/antigravity/resources/app/extensions/antigravity/bin/language_server_linux_x64 /ls_binary \
-    && chmod +x /ls_binary; \
+    curl -fsSL 'https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/1.18.3-4739469533380608/linux-x64/Antigravity.tar.gz' \
+    -o /tmp/antigravity.tar.gz \
+    && tar xzf /tmp/antigravity.tar.gz \
+    -C /extract \
+    --strip-components=0 \
+    'Antigravity/resources/app/extensions/antigravity/bin/language_server_linux_x64' \
+    && cp /extract/Antigravity/resources/app/extensions/antigravity/bin/language_server_linux_x64 /ls_binary \
+    && chmod +x /ls_binary \
+    && rm -rf /tmp/antigravity.tar.gz /extract/Antigravity; \
     elif [ "$TARGETARCH" = "arm64" ]; then \
     curl -fsSL 'https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/1.18.3-4739469533380608/linux-arm/Antigravity.tar.gz' \
-    -o /tmp/antigravity-arm.tar.gz \
-    && tar xzf /tmp/antigravity-arm.tar.gz \
+    -o /tmp/antigravity.tar.gz \
+    && tar xzf /tmp/antigravity.tar.gz \
     -C /extract \
     --strip-components=0 \
     'Antigravity/resources/app/extensions/antigravity/bin/language_server_linux_arm' \
     && cp /extract/Antigravity/resources/app/extensions/antigravity/bin/language_server_linux_arm /ls_binary \
     && chmod +x /ls_binary \
-    && rm -rf /tmp/antigravity-arm.tar.gz /extract/Antigravity; \
+    && rm -rf /tmp/antigravity.tar.gz /extract/Antigravity; \
     else \
     echo "Unsupported arch: $TARGETARCH" && exit 1; \
     fi
@@ -79,7 +78,7 @@ RUN useradd --system --no-create-home --shell /usr/sbin/nologin zerogravity-ls \
 COPY --from=downloader /zerogravity /usr/local/bin/zerogravity
 COPY --from=downloader /zg /usr/local/bin/zg
 
-# Copy LS binary — amd64 from Google's .deb, arm64 from Google's tar.gz
+# Copy backend binary
 COPY --from=ls-extractor /ls_binary /usr/local/bin/language_server_linux_x64
 
 # Setup directories
