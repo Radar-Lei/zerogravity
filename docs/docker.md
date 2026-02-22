@@ -87,7 +87,7 @@ Serializes generation requests to prevent thundering-herd failures when multiple
 | Variable                        | Default  | Description                                                |
 | ------------------------------- | -------- | ---------------------------------------------------------- |
 | `ZEROGRAVITY_QUEUE_ENABLED`     | `true`   | Set to `false`, `0`, or `no` to disable the queue entirely |
-| `ZEROGRAVITY_QUEUE_CONCURRENCY` | `1`      | Max concurrent requests to Google                          |
+| `ZEROGRAVITY_QUEUE_CONCURRENCY` | `2`      | Max concurrent requests to Google                          |
 | `ZEROGRAVITY_QUEUE_INTERVAL_MS` | `300`    | Anti-burst gap between consecutive requests (ms)           |
 | `ZEROGRAVITY_QUEUE_TIMEOUT_MS`  | `600000` | Max wait time in queue before HTTP 408                     |
 | `ZEROGRAVITY_QUEUE_MAX_SIZE`    | `50`     | Max queue depth; excess requests get HTTP 503              |

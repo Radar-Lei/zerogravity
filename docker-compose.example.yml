@@ -4,13 +4,11 @@ services:
     restart: unless-stopped
     ports:
       - "8741:8741"
-      - "8742:8742"
+      - "443:443"
     volumes:
-      # Auto-read OAuth token from host's Antigravity config.
-      # If Antigravity is not installed, this is harmless (empty dir).
-      - ${HOME}/.config/Antigravity:/root/.config/Antigravity:ro
+      # Mount accounts.json for multi-account rotation
+      - ./accounts.json:/root/.config/zerogravity/accounts.json:ro
     environment:
-      - ZEROGRAVITY_TOKEN=${ZEROGRAVITY_TOKEN:-}
       - ZEROGRAVITY_API_KEY=${ZEROGRAVITY_API_KEY:-}
       - ZEROGRAVITY_UPSTREAM_PROXY=${ZEROGRAVITY_UPSTREAM_PROXY:-}
       - RUST_LOG=info
