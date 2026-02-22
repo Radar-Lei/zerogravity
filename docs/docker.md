@@ -87,6 +87,7 @@ docker run -d --name zerogravity \
 | `ZEROGRAVITY_QUOTA_CAP`       | `0.2`     | Per-account quota usage cap (0.0–1.0), triggers rotation. `0` to disable            |
 | `ZEROGRAVITY_SYSTEM_MODE`     | `stealth` | `stealth` = keep backend prompt, inject user override; `minimal` = replace entirely |
 | `ZEROGRAVITY_SENSITIVE_WORDS` | built-in  | Comma-separated client names to obfuscate, or `none` to disable                     |
+| `ZEROGRAVITY_MODEL_ALIASES`   | —         | Map custom model names: `gpt-4o:gemini-3-flash,gpt-4:opus-4.6`                      |
 
 ### Request Queue
 
