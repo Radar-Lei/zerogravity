@@ -111,6 +111,12 @@ curl http://localhost:8741/health
 
 The proxy listens on **port 8741** by default. Point your API client at `http://localhost:8741`.
 
+**Gemini-compatible (recommended — zero-translation passthrough):**
+
+```
+http://localhost:8741/v1beta
+```
+
 **OpenAI-compatible** (ChatGPT clients, Cursor, Continue, etc.):
 
 ```
@@ -123,12 +129,6 @@ http://localhost:8741/v1
 http://localhost:8741
 ```
 
-**Gemini-compatible:**
-
-```
-http://localhost:8741/v1beta
-```
-
 > [!TIP]
 > **From your host machine:** `localhost:8741` works as-is (port is mapped in docker-compose).
 > **From another container** in the same compose: use `zerogravity:8741` (the service name).
@@ -137,33 +137,86 @@ http://localhost:8741/v1beta
 <details>
 <summary>OpenCode configuration template</summary>
 
-Add to your OpenCode config (`.opencode.json` or equivalent):
+> [!TIP]
+> **Use the Gemini protocol** — it's the recommended approach. The upstream API speaks Gemini natively, so tool calls, function declarations, and responses pass through with zero translation. The OpenAI and Anthropic protocols work but require format conversion on every request.
 
-```json
+Add to your global config (`~/.config/opencode/opencode.json`) or project config (`opencode.json`):
+
+**Gemini protocol (recommended):**
+
+```jsonc
 {
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
-    "name": "openai",
-    "baseUrl": "http://localhost:8741/v1",
-    "apiKey": "zg"
+    "zerogravity": {
+      "npm": "@ai-sdk/google",
+      "name": "ZeroGravity (Gemini)",
+      "options": {
+        "apiKey": "not-needed",
+        "baseURL": "http://localhost:8741/v1beta",
+      },
+      "models": {
+        "gemini-3-flash": {
+          "name": "Gemini 3 Flash",
+          "limit": { "context": 128000, "output": 65536 },
+        },
+        "gemini-3-pro": {
+          "name": "Gemini 3 Pro",
+          "limit": { "context": 128000, "output": 65536 },
+        },
+      },
+    },
   },
-  "model": "gemini-3-flash"
+  "model": "zerogravity/gemini-3-flash",
 }
 ```
 
-Or for Claude-style access:
+**OpenAI-compatible (alternative):**
 
-```json
+```jsonc
 {
+  "$schema": "https://opencode.ai/config.json",
   "provider": {
-    "name": "anthropic",
-    "baseUrl": "http://localhost:8741",
-    "apiKey": "zg"
+    "zerogravity": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "ZeroGravity",
+      "options": {
+        "apiKey": "not-needed",
+        "baseURL": "http://localhost:8741/v1",
+      },
+      "models": {
+        "gemini-3-flash": {
+          "name": "Gemini 3 Flash",
+          "limit": { "context": 128000, "output": 65536 },
+        },
+        "opus-4.6": {
+          "name": "Claude Opus 4.6",
+          "limit": { "context": 200000, "output": 16000 },
+          "thinking": { "type": "adaptive" },
+        },
+      },
+    },
   },
-  "model": "opus-4.6"
+  "model": "zerogravity/gemini-3-flash",
 }
 ```
 
-> The `apiKey` can be anything unless you've set `ZEROGRAVITY_API_KEY`.
+**Optional: MCP servers** (config varies by client — see each project's docs)
+
+- [Context7](https://github.com/upstash/context7#installation) — documentation search
+- [Open WebSearch](https://github.com/Aas-ee/open-webSearch) — web search via SearXNG
+
+**Optional: [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode)** — routes all OpenCode subagents through ZeroGravity:
+
+```jsonc
+{
+  "plugin": ["oh-my-opencode"],
+  // oh-my-opencode.json (same directory)
+  // sets every subagent model to "zerogravity/gemini-3-flash"
+}
+```
+
+> The `apiKey` can be anything — it's ignored unless you've set `ZEROGRAVITY_API_KEY`.
 
 </details>
 
@@ -183,14 +236,14 @@ curl http://localhost:8741/v1/chat/completions \
 
 The proxy runs on `http://localhost:8741` by default.
 
-| Path                                   | Protocol  | Description                         |
-| -------------------------------------- | --------- | ----------------------------------- |
-| `POST /v1/chat/completions`            | OpenAI    | Chat Completions (sync + streaming) |
-| `POST /v1/responses`                   | OpenAI    | Responses API (sync + streaming)    |
-| `POST /v1/messages`                    | Anthropic | Messages API (sync + streaming)     |
-| `POST /v1beta/models/{model}:{action}` | Gemini    | Official Gemini v1beta routes       |
-| `GET /v1/models`                       | —         | List available models               |
-| `GET /v1/images/*`                     | —         | Serve generated images (see below)  |
+| Path                                   | Protocol  | Description                                             |
+| -------------------------------------- | --------- | ------------------------------------------------------- |
+| `POST /v1/chat/completions`            | OpenAI    | Chat Completions (sync + streaming)                     |
+| `POST /v1/responses`                   | OpenAI    | Responses API (sync + streaming)                        |
+| `POST /v1/messages`                    | Anthropic | Messages API (sync + streaming)                         |
+| `POST /v1beta/models/{model}:{action}` | Gemini    | Official Gemini v1beta (recommended — zero translation) |
+| `GET /v1/models`                       | —         | List available models                                   |
+| `GET /v1/images/*`                     | —         | Serve generated images (see below)                      |
 
 For the full endpoint list (accounts, token, usage, quota, search), see the [API Reference](docs/api.md).
 
