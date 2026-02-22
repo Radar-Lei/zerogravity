@@ -14,30 +14,32 @@ zg update
 
 These work on any OS without a running proxy.
 
-| Command                      | Description                                             |
-| ---------------------------- | ------------------------------------------------------- |
-| `zg init`                    | First-run setup wizard (token, PATH, client hints)      |
-| `zg extract`                 | Extract account from Antigravity → accounts.json        |
-| `zg import <file>`           | Import accounts from Antigravity Manager export         |
-| `zg accounts`                | List stored accounts                                    |
-| `zg accounts set <email>`    | Set active account                                      |
-| `zg accounts remove <email>` | Remove stored account                                   |
-| `zg token`                   | Extract OAuth token from local Antigravity installation |
-| `zg docker-init`             | Generate docker-compose.yml + accounts.json template    |
-| `zg update`                  | Download latest zg binary from GitHub                   |
+| Command                      | Description                                           |
+| ---------------------------- | ----------------------------------------------------- |
+| `zg init`                    | First-run setup wizard (token, PATH, client hints)    |
+| `zg extract`                 | Extract account from Antigravity → accounts.json      |
+| `zg import <file>`           | Import accounts from Antigravity Manager export       |
+| `zg accounts`                | List stored accounts                                  |
+| `zg accounts set <email>`    | Set active account                                    |
+| `zg accounts remove <email>` | Remove stored account                                 |
+| `zg token`                   | Show OAuth tokens (access + refresh) from Antigravity |
+| `zg docker-init`             | Generate docker-compose.yml + accounts.json template  |
+| `zg update`                  | Download latest zg binary from GitHub                 |
 
 ## Daemon Commands
 
 These require a running proxy (Linux / Docker).
 
-| Command         | Description                                        |
-| --------------- | -------------------------------------------------- |
-| `zg start`      | Start the proxy daemon                             |
-| `zg stop`       | Stop the proxy daemon                              |
-| `zg restart`    | Stop + start (no build/download)                   |
-| `zg status`     | Version, endpoints, quota, usage, and update check |
-| `zg test [msg]` | Quick test request (gemini-3-flash)                |
-| `zg health`     | Health check                                       |
+| Command            | Description                                        |
+| ------------------ | -------------------------------------------------- |
+| `zg start`         | Start the proxy daemon                             |
+| `zg stop`          | Stop the proxy daemon                              |
+| `zg restart`       | Stop + start (no build/download)                   |
+| `zg status`        | Version, endpoints, quota, usage, and update check |
+| `zg test [msg]`    | Quick test request (gemini-3-flash)                |
+| `zg health`        | Health check                                       |
+| `zg smoke`         | Run comprehensive smoke tests (all endpoints)      |
+| `zg smoke --quick` | Quick smoke test (skip streaming/tools)            |
 
 ### Logs
 
