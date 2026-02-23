@@ -5,16 +5,26 @@ body:
   - type: markdown
     attributes:
       value: |
-        Before reporting, please run `zg report` and attach the output.
+        ⚠️ **Trace ID required for request failures / 请求失败必须提供 Trace ID**
 
-        **If you have a specific failing request**, also run `zg report <trace-id>` to bundle
-        the exact trace (use `zg trace ls` to find the ID). This creates a `.tar.gz` with
-        the full request/response data we need to reproduce and debug.
+        If a specific request failed, you **must** include `zg report <trace-id>`.
+        Use `zg trace ls` to find the trace ID, then run `zg report <trace-id>` to create
+        a `.tar.gz` bundle with the full request/response data.
+
+        **Issues without a trace ID for request failures will not be prioritized.**
+
+        ---
+
+        如果某个请求失败，**必须**附上 `zg report <trace-id>` 的输出。
+        使用 `zg trace ls` 查找 trace ID，然后运行 `zg report <trace-id>` 生成
+        包含完整请求/响应数据的 `.tar.gz` 包。
+
+        **未提供 trace ID 的请求失败 issue 将不会被优先处理。**
 
   - type: textarea
     id: description
     attributes:
-      label: What happened?
+      label: What happened? / 发生了什么？
       description: Describe what went wrong and what you expected.
     validations:
       required: true
@@ -22,7 +32,7 @@ body:
   - type: textarea
     id: repro
     attributes:
-      label: How to reproduce
+      label: How to reproduce / 如何复现
       description: |
         What command or request caused the issue?
         Include the curl command, client config, or steps to trigger it.
@@ -34,13 +44,13 @@ body:
   - type: textarea
     id: report
     attributes:
-      label: Diagnostic Report
+      label: Diagnostic Report / 诊断报告
       description: |
-        Run `zg report` and paste the output here, or attach the file
-        (`~/.config/zerogravity/diagnostic.toon`).
+        **For request failures**: Run `zg report <trace-id>` and attach the `.tar.gz` file.
+        **For general issues**: Run `zg report` and paste the output here.
 
-        If a specific request failed, also attach the trace bundle from
-        `zg report <trace-id>` (a `.tar.gz` file).
+        对于请求失败：运行 `zg report <trace-id>` 并附上 `.tar.gz` 文件。
+        对于一般问题：运行 `zg report` 并粘贴输出。
       render: text
     validations:
       required: true
@@ -48,5 +58,5 @@ body:
   - type: textarea
     id: extra
     attributes:
-      label: Additional Context
+      label: Additional Context / 补充信息
       description: Anything else -- screenshots, network setup (VPN/proxy), error messages from your client, etc.
