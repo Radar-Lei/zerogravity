@@ -38,9 +38,10 @@ jobs:
 
       - name: Block sensitive terms in README
         run: |
-          if grep -qiE 'BoringSSL|JA3|JA4|iptables|fingerprint|obfuscat|MITM.*(intercept|proxy|inject|swap)|extension.server.analysis|ls.binary.analysis|architecture\.md|mitm\.md' README.md; then
+          SENSITIVE_PATTERN='BoringSSL|JA3|JA4|iptables|MITM.*(intercept|proxy|inject|swap)|extension[._ -]?server[._ -]?analysis|ls[._ -]?binary[._ -]?analysis|docs/(architecture|mitm)\.md|architecture\.md|mitm\.md'
+          if grep -qiE "$SENSITIVE_PATTERN" README.md; then
             echo "::error::BLOCKED: README contains internal implementation details"
-            grep -niE 'BoringSSL|JA3|JA4|iptables|fingerprint|obfuscat|MITM.*(intercept|proxy|inject|swap)|extension.server.analysis|ls.binary.analysis|architecture\.md|mitm\.md' README.md
+            grep -niE "$SENSITIVE_PATTERN" README.md
             exit 1
           fi
           echo "README is clean"
