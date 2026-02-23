@@ -5,21 +5,22 @@ body:
   - type: markdown
     attributes:
       value: |
-        ⚠️ **Trace ID required for request failures / 请求失败必须提供 Trace ID**
+        ⚠️ **`zg report <trace-id>` is required for request failures**
 
-        If a specific request failed, you **must** include `zg report <trace-id>`.
-        Use `zg trace ls` to find the trace ID, then run `zg report <trace-id>` to create
-        a `.tar.gz` bundle with the full request/response data.
+        When a request fails, the error message will contain the exact command to run,
+        for example: `zg report 3e016a41`. Run that command inside your Docker container
+        and upload the `.tar.gz` file below.
 
-        **Issues without a trace ID for request failures will not be prioritized.**
+        **Issues about request failures without a `zg report <trace-id>` bundle will not be prioritized** —
+        the trace ID alone is not enough, we need the full bundle.
 
         ---
 
-        如果某个请求失败，**必须**附上 `zg report <trace-id>` 的输出。
-        使用 `zg trace ls` 查找 trace ID，然后运行 `zg report <trace-id>` 生成
-        包含完整请求/响应数据的 `.tar.gz` 包。
+        当请求失败时，错误信息会包含需要运行的命令，例如：`zg report 3e016a41`。
+        在 Docker 容器中运行该命令，然后在下方上传生成的 `.tar.gz` 文件。
 
-        **未提供 trace ID 的请求失败 issue 将不会被优先处理。**
+        **未附上 `zg report <trace-id>` 的请求失败 issue 将不会被优先处理** ——
+        仅有 trace ID 是不够的，我们需要完整的报告包。
 
   - type: textarea
     id: description
@@ -40,20 +41,32 @@ body:
         curl -s http://localhost:8741/v1/chat/completions \
           -H "Content-Type: application/json" \
           -d '{"model":"gemini-3-flash","messages":[{"role":"user","content":"..."}]}'
+    validations:
+      required: true
 
   - type: textarea
     id: report
     attributes:
       label: Diagnostic Report / 诊断报告
       description: |
-        **For request failures**: Run `zg report <trace-id>` and attach the `.tar.gz` file.
-        **For general issues**: Run `zg report` and paste the output here.
+        Run `zg report` (no trace ID) and paste the output here.
+        This gives us your version, config, and recent log summary.
 
-        对于请求失败：运行 `zg report <trace-id>` 并附上 `.tar.gz` 文件。
-        对于一般问题：运行 `zg report` 并粘贴输出。
+        运行 `zg report`（不带 trace ID）并粘贴输出到此处。
       render: text
     validations:
       required: true
+
+  - type: textarea
+    id: trace_bundle
+    attributes:
+      label: Trace Bundle / 请求追踪包
+      description: |
+        **For request failures only.** The error message will show a command like
+        `zg report 3e016a41` — run it and upload the `.tar.gz` file here.
+
+        **仅限请求失败。** 错误信息中会显示类似 `zg report 3e016a41` 的命令，
+        运行后上传生成的 `.tar.gz` 文件。
 
   - type: textarea
     id: extra
