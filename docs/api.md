@@ -62,6 +62,18 @@ curl http://localhost:8741/v1/models
 
 Returns the list of available models and their aliases.
 
+## Model Aliases
+
+Map custom model names to any built-in model. Requests using an alias are transparently rewritten to the target model.
+
+**Three ways to configure:**
+
+1. **CLI** (recommended): `zg alias set gpt-4o gemini-3-flash`
+2. **JSON file**: `aliases.json` in the config directory (same location as `accounts.json`)
+3. **Env var**: `ZEROGRAVITY_MODEL_ALIASES=gpt-4o:gemini-3-flash,gpt-4:opus-4.6`
+
+JSON file takes precedence, env var overrides. Restart the daemon after changes.
+
 ## Images
 
 When a model generates an image, it is automatically saved and served:

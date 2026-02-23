@@ -29,6 +29,7 @@ services:
       - "443:443"
     volumes:
       - ./accounts.json:/root/.config/zerogravity/accounts.json:ro
+      - ./aliases.json:/root/.config/zerogravity/aliases.json:ro
     environment:
       - ZEROGRAVITY_API_KEY=${ZEROGRAVITY_API_KEY:-}
       - RUST_LOG=info
@@ -59,6 +60,7 @@ docker run -d --name zerogravity \
 | Host Path         | Container Path                               | Purpose                          |
 | ----------------- | -------------------------------------------- | -------------------------------- |
 | `./accounts.json` | `/root/.config/zerogravity/accounts.json:ro` | Multi-account rotation (primary) |
+| `./aliases.json`  | `/root/.config/zerogravity/aliases.json:ro`  | Custom model name aliases        |
 
 ## Environment Variables
 

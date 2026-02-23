@@ -26,6 +26,16 @@ These work on any OS without a running proxy.
 | `zg docker-init`             | Generate docker-compose.yml + accounts.json template  |
 | `zg update`                  | Download latest zg binary from GitHub                 |
 
+### Model Aliases
+
+| Command                               | Description                    |
+| ------------------------------------- | ------------------------------ |
+| `zg alias`                            | List configured model aliases  |
+| `zg alias set <custom-name> <target>` | Create or update a model alias |
+| `zg alias remove <custom-name>`       | Remove a model alias           |
+
+Aliases are stored in `aliases.json` in the config directory. Restart the daemon after changes.
+
 ## Daemon Commands
 
 These require a running proxy (Linux / Docker).
