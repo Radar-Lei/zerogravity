@@ -22,14 +22,15 @@ The `zg docker-init` command generates a ready-to-use `docker-compose.yml`:
 ```yaml
 services:
   zerogravity:
-    image: ghcr.io/nikketryhard/zerogravity:latest
+    container_name: zerogravity
+    image: ghcr.io/nikketryhard/zerogravity:v1.3.7
     restart: unless-stopped
     ports:
       - "8741:8741"
       - "443:443"
     volumes:
       - ./accounts.json:/root/.config/zerogravity/accounts.json:ro
-      - ./aliases.json:/root/.config/zerogravity/aliases.json:ro
+      - ./aliases.json:/root/.config/zerogravity/aliases.json
     environment:
       - ZEROGRAVITY_API_KEY=${ZEROGRAVITY_API_KEY:-}
       - RUST_LOG=info
@@ -70,7 +71,7 @@ docker run -d --name zerogravity \
 | `ZEROGRAVITY_TOKEN`           | —                       | Single OAuth access token — expires in 60min         | `ya29.a0ARrdaM...`          |
 | `ZEROGRAVITY_API_KEY`         | —                       | Protect proxy from unauthorized access               | `my-secret-key`             |
 | `ZEROGRAVITY_UPSTREAM_PROXY`  | —                       | Route outbound traffic through a proxy               | `socks5://127.0.0.1:1080`   |
-| `ZEROGRAVITY_LS_PATH`         | Auto-detected           | Path to backend binary (set automatically in Docker) | `/usr/bin/antigravity_ls`   |
+| `ZEROGRAVITY_LS_PATH`         | Auto-detected           | Path to backend binary (set automatically in Docker) | `/usr/local/bin/language_server_linux_x64` |
 | `ZEROGRAVITY_CONFIG_DIR`      | `~/.config/zerogravity` | Config directory                                     | `/etc/zerogravity`          |
 | `ZEROGRAVITY_DATA_DIR`        | `/tmp/.agcache`         | Backend data directory                               | `/var/lib/zerogravity`      |
 | `ZEROGRAVITY_APP_ROOT`        | Auto-detected           | Antigravity app root directory                       | `/opt/antigravity`          |
@@ -78,10 +79,9 @@ docker run -d --name zerogravity \
 | `ZEROGRAVITY_LS_USER`         | `zerogravity-ls`        | System user for process isolation (Linux)            | `nobody`                    |
 | `ZEROGRAVITY_MACHINE_ID_PATH` | Auto-detected           | Path to Antigravity's machine ID file                | `/path/to/machineid`        |
 | `ZEROGRAVITY_CLIENT_VERSION`  | Auto-detected           | Override the client version string                   | `1.15.8`                    |
-| `ZEROGRAVITY_MAX_RETRY_DELAY` | Internal default        | Max retry delay in seconds on rate limit errors      | `120`                       |
 | `ZEROGRAVITY_API_BODY_LIMIT_MB` | `32` (clamped `1..100`) | Max request body size in MiB for API routes (`/v1/*`) | `64`                        |
 | `SSL_CERT_FILE`               | System default          | Custom CA certificate bundle path                    | `/etc/ssl/certs/ca.pem`     |
-| `RUST_LOG`                    | `info`                  | Log level                                            | `debug`                     |
+| `RUST_LOG`                    | `warn` (runtime default) / `info` (`zg docker-init` template) | Log level | `debug`                     |
 
 ### Customization
 

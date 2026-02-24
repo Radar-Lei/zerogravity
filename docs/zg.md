@@ -24,6 +24,7 @@ These work on any OS without a running proxy.
 | `zg accounts remove <email>` | Remove stored account                                 |
 | `zg token`                   | Show OAuth tokens (access + refresh) from Antigravity |
 | `zg docker-init`             | Generate docker-compose.yml + accounts.json template  |
+| `zg rebuild`                 | Rebuild host binary + Docker image and restart daemon |
 | `zg update`                  | Download latest zg binary from GitHub                 |
 
 ### Model Aliases
@@ -38,7 +39,8 @@ Aliases are stored in `aliases.json` in the config directory. Restart the daemon
 
 ## Daemon Commands
 
-These require a running proxy (Linux / Docker).
+Most of these require a running proxy (Linux / Docker). `zg status` can run
+without a live proxy and reports reachability/status details.
 
 | Command            | Description                                        |
 | ------------------ | -------------------------------------------------- |
@@ -46,7 +48,7 @@ These require a running proxy (Linux / Docker).
 | `zg stop`          | Stop the proxy daemon                              |
 | `zg restart`       | Stop + start (no build/download)                   |
 | `zg status`        | Version, endpoints, quota, usage, and update check |
-| `zg test [msg]`    | Quick test request (gemini-3-flash)                |
+| `zg test [msg]`    | Quick test request (gemini-3.1-pro)                |
 | `zg health`        | Health check                                       |
 | `zg smoke`         | Run comprehensive smoke tests (all endpoints)      |
 | `zg smoke --quick` | Quick smoke test (skip streaming/tools)            |
@@ -75,3 +77,10 @@ These require a running proxy (Linux / Docker).
 | `zg report`        | Generate bounded diagnostic snapshot for bug reports |
 | `zg report <id>`   | Bundle a specific trace into a shareable `.tar.gz` |
 | `zg replay <file>` | Re-send a bundled trace to the local proxy         |
+
+## Environment Overrides
+
+| Variable           | Scope | Description |
+| ------------------ | ----- | ----------- |
+| `PROXY_PORT`       | CLI   | Overrides the target `http://localhost:<port>` used by HTTP-based CLI commands (`zg status`, `zg test`, `zg health`, `zg smoke`, etc.). |
+| `ZEROGRAVITY_SRC`  | Dev CLI | Overrides source directory discovery for `zg rebuild` in source-based workflows. |

@@ -60,7 +60,7 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
 curl http://localhost:8741/v1/models
 ```
 
-Returns the list of available models and their aliases.
+Returns the list of available built-in models.
 
 ## Model Aliases
 
@@ -214,7 +214,7 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
   -d '{"contents": [{"role": "user", "parts": [{"text": "hi"}]}]}'
 ```
 
-> **Note:** If `ZEROGRAVITY_API_KEY` is not set, no authentication is enforced (backward-compatible). `/health` and `/` are always public.
+> **Note:** If `ZEROGRAVITY_API_KEY` is not set, no authentication is enforced (backward-compatible). Public compatibility routes include `/health`, `/`, `/api/event_logging/batch`, `/.well-known/{*path}`, and `/v1/images/{*path}`.
 
 ## All Endpoints
 
@@ -223,6 +223,7 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
 | `POST`     | `/v1/chat/completions`            | Chat Completions API (OpenAI compat)  |
 | `POST`     | `/v1/responses`                   | Responses API (sync + streaming)      |
 | `POST`     | `/v1/messages`                    | Messages API (Anthropic compat)       |
+| `POST`     | `/v1/messages/count_tokens`       | Anthropic token counting endpoint     |
 | `POST`     | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes         |
 | `GET`      | `/v1/models`                      | List available models                 |
 | `GET/POST` | `/v1/search`                      | Web Search via Google grounding (WIP) |
@@ -235,3 +236,6 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
 | `GET`      | `/v1/quota`                       | Quota and rate limits                 |
 | `GET`      | `/v1/images/*`                    | Serve generated images                |
 | `GET`      | `/health`                         | Health check                          |
+| `GET/POST` | `/`                               | Compatibility root (returns status)   |
+| `POST`     | `/api/event_logging/batch`        | Compatibility event logging endpoint  |
+| `GET/POST` | `/.well-known/{*path}`            | Compatibility well-known endpoint     |
