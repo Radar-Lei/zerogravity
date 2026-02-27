@@ -1,5 +1,9 @@
 # Docker Guide
 
+- **Status**: Active
+- **Last validated**: 2026-02-26
+- **Related docs**: [`README.md`](README.md), [`api.md`](api.md), [`zg.md`](zg.md), [`../index.md`](../index.md)
+
 The proxy runs as a Docker container. The image bundles all required backend components — no Antigravity installation needed on the host.
 
 ## Quick Start
@@ -23,7 +27,7 @@ The `zg docker-init` command generates a ready-to-use `docker-compose.yml`:
 services:
   zerogravity:
     container_name: zerogravity
-    image: ghcr.io/nikketryhard/zerogravity:v1.3.7
+    image: ghcr.io/nikketryhard/zerogravity:latest
     restart: unless-stopped
     ports:
       - "8741:8741"
@@ -33,8 +37,23 @@ services:
       - ./aliases.json:/root/.config/zerogravity/aliases.json
     environment:
       - ZEROGRAVITY_API_KEY=${ZEROGRAVITY_API_KEY:-}
+      - ZEROGRAVITY_OS=${ZEROGRAVITY_OS:-}
+      - ZEROGRAVITY_IDE_VERSION=${ZEROGRAVITY_IDE_VERSION:-}
+      - ZEROGRAVITY_DEVICE_FINGERPRINT=${ZEROGRAVITY_DEVICE_FINGERPRINT:-}
       - RUST_LOG=info
 ```
+
+> To use environment variables for accounts instead of a volume mount, remove the `volumes` section from your `docker-compose.yml` and update the `environment` section to include `ZEROGRAVITY_ACCOUNTS`:
+> ```yaml
+> environment:
+>   - ZEROGRAVITY_ACCOUNTS=user1@gmail.com:1//token1,user2@gmail.com:1//token2
+>   - ZEROGRAVITY_API_KEY=${ZEROGRAVITY_API_KEY:-}
+>   - ZEROGRAVITY_OS=${ZEROGRAVITY_OS:-}
+>   - ZEROGRAVITY_IDE_VERSION=${ZEROGRAVITY_IDE_VERSION:-}
+>   - ZEROGRAVITY_DEVICE_FINGERPRINT=${ZEROGRAVITY_DEVICE_FINGERPRINT:-}
+>   - RUST_LOG=info
+> ```
+> Comma-separate multiple accounts for automatic rotation on rate limit.
 
 ## Docker Run (Alternative)
 
@@ -47,12 +66,21 @@ docker run -d --name zerogravity \
   ghcr.io/nikketryhard/zerogravity:latest
 ```
 
-**With env var:**
+**With env var (single account):**
 
 ```bash
 docker run -d --name zerogravity \
   -p 8741:8741 \
   -e ZEROGRAVITY_ACCOUNTS="user@gmail.com:1//refresh_token" \
+  ghcr.io/nikketryhard/zerogravity:latest
+```
+
+**With env var (multiple accounts — comma-separated, auto-rotates on rate limit):**
+
+```bash
+docker run -d --name zerogravity \
+  -p 8741:8741 \
+  -e ZEROGRAVITY_ACCOUNTS="user1@gmail.com:1//token1,user2@gmail.com:1//token2" \
   ghcr.io/nikketryhard/zerogravity:latest
 ```
 
@@ -67,10 +95,11 @@ docker run -d --name zerogravity \
 
 | Variable                      | Default                 | Description                                          | Example                     |
 | ----------------------------- | ----------------------- | ---------------------------------------------------- | --------------------------- |
-| `ZEROGRAVITY_ACCOUNTS`        | —                       | Inline accounts                                      | `user@gmail.com:1//0abc...` |
+| `ZEROGRAVITY_ACCOUNTS`        | —                       | Inline accounts — `email:refresh_token`, comma-separated for multiple | `user1@gmail.com:1//0abc...,user2@gmail.com:1//0xyz...` |
 | `ZEROGRAVITY_TOKEN`           | —                       | Single OAuth access token — expires in 60min         | `ya29.a0ARrdaM...`          |
 | `ZEROGRAVITY_API_KEY`         | —                       | Protect proxy from unauthorized access               | `my-secret-key`             |
 | `ZEROGRAVITY_UPSTREAM_PROXY`  | —                       | Route outbound traffic through a proxy               | `socks5://127.0.0.1:1080`   |
+| `ZEROGRAVITY_HTTP_PROXY`      | —                       | Pass HTTP/HTTPS corporate proxy settings to the backend child process | `http://proxy.internal:8080` |
 | `ZEROGRAVITY_LS_PATH`         | Auto-detected           | Path to backend binary (set automatically in Docker) | `/usr/local/bin/language_server_linux_x64` |
 | `ZEROGRAVITY_CONFIG_DIR`      | `~/.config/zerogravity` | Config directory                                     | `/etc/zerogravity`          |
 | `ZEROGRAVITY_DATA_DIR`        | `/tmp/.agcache`         | Backend data directory                               | `/var/lib/zerogravity`      |
@@ -78,7 +107,10 @@ docker run -d --name zerogravity \
 | `ZEROGRAVITY_STATE_DB`        | Auto-detected           | Path to Antigravity's state database                 | `/path/to/state.vscdb`      |
 | `ZEROGRAVITY_LS_USER`         | `zerogravity-ls`        | System user for process isolation (Linux)            | `nobody`                    |
 | `ZEROGRAVITY_MACHINE_ID_PATH` | Auto-detected           | Path to Antigravity's machine ID file                | `/path/to/machineid`        |
+| `ZEROGRAVITY_OS`              | Auto-detected           | Override reported OS label (`Linux`, `macOS`, `Windows`) | `Windows`                 |
+| `ZEROGRAVITY_IDE_VERSION`     | Auto-detected           | Preferred override for reported IDE version          | `1.19.4`                    |
 | `ZEROGRAVITY_CLIENT_VERSION`  | Auto-detected           | Override the client version string                   | `1.15.8`                    |
+| `ZEROGRAVITY_DEVICE_FINGERPRINT` | Auto-detected         | Override reported device fingerprint (UUID required) | `11111111-2222-4333-8444-555555555555` |
 | `ZEROGRAVITY_API_BODY_LIMIT_MB` | `32` (clamped `1..100`) | Max request body size in MiB for API routes (`/v1/*`) | `64`                        |
 | `SSL_CERT_FILE`               | System default          | Custom CA certificate bundle path                    | `/etc/ssl/certs/ca.pem`     |
 | `RUST_LOG`                    | `warn` (runtime default) / `info` (`zg docker-init` template) | Log level | `debug`                     |

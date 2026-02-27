@@ -1,5 +1,9 @@
 # `zg` CLI Reference
 
+- **Status**: Active
+- **Last validated**: 2026-02-24
+- **Related docs**: [`README.md`](README.md), [`docker.md`](docker.md), [`api.md`](api.md), [`../index.md`](../index.md)
+
 `zg` is a standalone CLI tool that works on **any OS** (Linux, macOS, Windows). The proxy itself runs on Linux/Docker only.
 
 ## Installation
@@ -23,6 +27,7 @@ These work on any OS without a running proxy.
 | `zg accounts set <email>`    | Set active account                                    |
 | `zg accounts remove <email>` | Remove stored account                                 |
 | `zg token`                   | Show OAuth tokens (access + refresh) from Antigravity |
+| `zg fingerprint`             | Print device-fingerprint + IDE version env hints      |
 | `zg docker-init`             | Generate docker-compose.yml + accounts.json template  |
 | `zg rebuild`                 | Rebuild host binary + Docker image and restart daemon |
 | `zg update`                  | Download latest zg binary from GitHub                 |
@@ -70,6 +75,8 @@ without a live proxy and reports reachability/status details.
 | `zg trace dir`    | Print trace base directory |
 | `zg trace errors` | Show today's error traces  |
 
+Supported subcommands are exactly: `ls`, `dir`, `errors`.
+
 ### Diagnostics
 
 | Command            | Description                                        |
@@ -84,3 +91,6 @@ without a live proxy and reports reachability/status details.
 | ------------------ | ----- | ----------- |
 | `PROXY_PORT`       | CLI   | Overrides the target `http://localhost:<port>` used by HTTP-based CLI commands (`zg status`, `zg test`, `zg health`, `zg smoke`, etc.). |
 | `ZEROGRAVITY_SRC`  | Dev CLI | Overrides source directory discovery for `zg rebuild` in source-based workflows. |
+| `ZEROGRAVITY_OS`   | Runtime | Override reported OS label for metadata/header alignment (`Linux`, `macOS`, `Windows`). |
+| `ZEROGRAVITY_IDE_VERSION` | Runtime | Override reported IDE version (preferred over `ZEROGRAVITY_CLIENT_VERSION`). |
+| `ZEROGRAVITY_DEVICE_FINGERPRINT` | Runtime | Override reported device fingerprint (UUID format required). |
