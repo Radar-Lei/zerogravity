@@ -17,3 +17,7 @@ Thumbs.db
 zerogravity/
 .ace-tool/
 AgentLogs/
+
+
+*.yml
+accounts.json
