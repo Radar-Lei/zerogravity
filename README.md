@@ -61,14 +61,15 @@ Explain to the user what this project unlocks — not what it _is_, but what bec
 
 ## Models
 
-| Name                  | Label                        | Notes               |
-| --------------------- | ---------------------------- | ------------------- |
-| `opus-4.6`            | Claude Opus 4.6 (Thinking)   | Default model       |
-| `sonnet-4.6`          | Claude Sonnet 4.6 (Thinking) | —                   |
-| `gemini-3-flash`      | Gemini 3 Flash               | Recommended for dev |
-| `gemini-3.1-pro`      | Gemini 3.1 Pro (High)        | Experimental        |
-| `gemini-3.1-pro-high` | Gemini 3.1 Pro (High)        | Alias               |
-| `gemini-3.1-pro-low`  | Gemini 3.1 Pro (Low)         | Experimental        |
+| Name                  | Label                           | Notes               |
+| --------------------- | ------------------------------- | ------------------- |
+| `opus-4.6`            | Claude Opus 4.6 (Thinking)      | Default model       |
+| `sonnet-4.6`          | Claude Sonnet 4.6 (Thinking)    | —                   |
+| `gemini-3-flash`      | Gemini 3 Flash                  | Recommended for dev |
+| `gemini-3.1-pro`      | Gemini 3.1 Pro (High)           | Experimental        |
+| `gemini-3.1-pro-high` | Gemini 3.1 Pro (High)           | Alias               |
+| `gemini-3.1-pro-low`  | Gemini 3.1 Pro (Low)            | Experimental        |
+| `gemini-3-pro-image`  | Gemini 3 Pro (Image Generation) | Image generation    |
 
 ## Quick Start
 
@@ -325,6 +326,8 @@ The proxy reads accounts from `accounts.json` in the config directory:
 | ----------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ZEROGRAVITY_SYSTEM_MODE`     | `stealth`     | `stealth` = keep backend prompt, inject user system prompt as override; `minimal` = replace 20KB prompt with minimal identity + user prompt |
 | `ZEROGRAVITY_SENSITIVE_WORDS` | built-in list | Comma-separated client names to obfuscate in requests (zero-width spaces), or `none` to disable                                             |
+| `ZEROGRAVITY_MODEL_ALIASES`   | —             | Map custom model names to built-in models, e.g. `gpt-4o:gemini-3-flash,gpt-4:opus-4.6`. Also configurable via `zg alias` or `aliases.json`  |
+| `ZEROGRAVITY_API_BODY_LIMIT_MB` | `32` (clamped `1..100`) | Max request body size in MiB for API routes (`/v1/*`) | `64` |
 
 **System prompt mode:** When your client sends a system prompt (e.g. via OpenAI `system` role), ZeroGravity injects it into the request. In `stealth` mode, the backend's identity is stripped and your prompt takes over. In `minimal` mode, the entire 20KB backend prompt is replaced — saves tokens but may trigger rate limiting on Pro models.
 

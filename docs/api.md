@@ -60,7 +60,19 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
 curl http://localhost:8741/v1/models
 ```
 
-Returns the list of available models and their aliases.
+Returns the list of available built-in models.
+
+## Model Aliases
+
+Map custom model names to any built-in model. Requests using an alias are transparently rewritten to the target model.
+
+**Three ways to configure:**
+
+1. **CLI** (recommended): `zg alias set gpt-4o gemini-3-flash`
+2. **JSON file**: `aliases.json` in the config directory (same location as `accounts.json`)
+3. **Env var**: `ZEROGRAVITY_MODEL_ALIASES=gpt-4o:gemini-3-flash,gpt-4:opus-4.6`
+
+JSON file takes precedence, env var overrides. Restart the daemon after changes.
 
 ## Images
 
@@ -104,6 +116,16 @@ curl -X DELETE http://localhost:8741/v1/accounts \
   -d '{"email": "user@gmail.com"}'
 ```
 
+### Set Active Account (Runtime)
+
+Switches the active account immediately without restarting the proxy process manually.
+
+```bash
+curl -X POST http://localhost:8741/v1/accounts/set_active \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@gmail.com"}'
+```
+
 ### Account Rotation
 
 When running with 2+ accounts, the proxy **automatically rotates** to the next account when:
@@ -116,7 +138,7 @@ The rotation:
 - Waits a short cooldown (5–10s with jitter)
 - Refreshes the next account's access token via OAuth
 - Restarts the backend to get a clean session
-- Clears all rate limiter state
+- Resets cooldown windows while preserving exhaustion counters
 
 Use `--quota-cap 0.2` (default) or set `ZEROGRAVITY_QUOTA_CAP=0.2` to rotate proactively when any model exceeds 80% usage. When all accounts are exhausted, the proxy parks and waits for quota to reset. Set to `0` to disable proactive rotation.
 
@@ -192,7 +214,7 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
   -d '{"contents": [{"role": "user", "parts": [{"text": "hi"}]}]}'
 ```
 
-> **Note:** If `ZEROGRAVITY_API_KEY` is not set, no authentication is enforced (backward-compatible). `/health` and `/` are always public.
+> **Note:** If `ZEROGRAVITY_API_KEY` is not set, no authentication is enforced (backward-compatible). Public compatibility routes include `/health`, `/`, `/api/event_logging/batch`, `/.well-known/{*path}`, and `/v1/images/{*path}`.
 
 ## All Endpoints
 
@@ -201,14 +223,19 @@ curl http://localhost:8741/v1beta/models/gemini-3-flash:generateContent \
 | `POST`     | `/v1/chat/completions`            | Chat Completions API (OpenAI compat)  |
 | `POST`     | `/v1/responses`                   | Responses API (sync + streaming)      |
 | `POST`     | `/v1/messages`                    | Messages API (Anthropic compat)       |
+| `POST`     | `/v1/messages/count_tokens`       | Anthropic token counting endpoint     |
 | `POST`     | `/v1beta/models/{model}:{action}` | Official Gemini v1beta routes         |
 | `GET`      | `/v1/models`                      | List available models                 |
 | `GET/POST` | `/v1/search`                      | Web Search via Google grounding (WIP) |
 | `POST`     | `/v1/token`                       | Set OAuth token at runtime            |
 | `POST`     | `/v1/accounts`                    | Add account (email + refresh_token)   |
+| `POST`     | `/v1/accounts/set_active`         | Set active account at runtime          |
 | `GET`      | `/v1/accounts`                    | List stored accounts                  |
 | `DELETE`   | `/v1/accounts`                    | Remove account by email               |
 | `GET`      | `/v1/usage`                       | Proxy token usage                     |
 | `GET`      | `/v1/quota`                       | Quota and rate limits                 |
 | `GET`      | `/v1/images/*`                    | Serve generated images                |
 | `GET`      | `/health`                         | Health check                          |
+| `GET/POST` | `/`                               | Compatibility root (returns status)   |
+| `POST`     | `/api/event_logging/batch`        | Compatibility event logging endpoint  |
+| `GET/POST` | `/.well-known/{*path}`            | Compatibility well-known endpoint     |

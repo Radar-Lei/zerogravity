@@ -5,16 +5,27 @@ body:
   - type: markdown
     attributes:
       value: |
-        Before reporting, please run `zg report` and attach the output.
+        ⚠️ **`zg report <trace-id>` is required for request failures**
 
-        **If you have a specific failing request**, also run `zg report <trace-id>` to bundle
-        the exact trace (use `zg trace ls` to find the ID). This creates a `.tar.gz` with
-        the full request/response data we need to reproduce and debug.
+        When a request fails, the error message will contain the exact command to run,
+        for example: `zg report 3e016a41`. Run that command inside your Docker container
+        and drag-and-drop the `.tar.gz` file at the bottom of this form.
+
+        **Issues about request failures without a `zg report <trace-id>` bundle will not be prioritized** —
+        the trace ID alone is not enough, we need the full bundle.
+
+        ---
+
+        当请求失败时，错误信息会包含需要运行的命令，例如：`zg report 3e016a41`。
+        在 Docker 容器中运行该命令，然后将 `.tar.gz` 文件拖放到表单底部。
+
+        **未附上 `zg report <trace-id>` 的请求失败 issue 将不会被优先处理** ——
+        仅有 trace ID 是不够的，我们需要完整的报告包。
 
   - type: textarea
     id: description
     attributes:
-      label: What happened?
+      label: What happened? / 发生了什么？
       description: Describe what went wrong and what you expected.
     validations:
       required: true
@@ -22,7 +33,7 @@ body:
   - type: textarea
     id: repro
     attributes:
-      label: How to reproduce
+      label: How to reproduce / 如何复现
       description: |
         What command or request caused the issue?
         Include the curl command, client config, or steps to trigger it.
@@ -30,17 +41,18 @@ body:
         curl -s http://localhost:8741/v1/chat/completions \
           -H "Content-Type: application/json" \
           -d '{"model":"gemini-3-flash","messages":[{"role":"user","content":"..."}]}'
+    validations:
+      required: true
 
   - type: textarea
     id: report
     attributes:
-      label: Diagnostic Report
+      label: Diagnostic Report / 诊断报告
       description: |
-        Run `zg report` and paste the output here, or attach the file
-        (`~/.config/zerogravity/diagnostic.toon`).
+        Run `zg report` (no trace ID) and paste the output here.
+        This gives us your version, config, and recent log summary.
 
-        If a specific request failed, also attach the trace bundle from
-        `zg report <trace-id>` (a `.tar.gz` file).
+        运行 `zg report`（不带 trace ID）并粘贴输出到此处。
       render: text
     validations:
       required: true
@@ -48,5 +60,5 @@ body:
   - type: textarea
     id: extra
     attributes:
-      label: Additional Context
+      label: Additional Context / 补充信息
       description: Anything else -- screenshots, network setup (VPN/proxy), error messages from your client, etc.
